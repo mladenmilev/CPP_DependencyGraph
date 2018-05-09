@@ -1,4 +1,5 @@
 import os, fnmatch, re
+import graph_plotter as plotter
 
 path = 'C:\\_src\\7196\\'
 projects = ['BMesh', 'BRing', 'Equipment', 'utilities', 'XData', 'XMesh', 'XN', 'XORA', 'XRing', 'Xs']
@@ -43,5 +44,7 @@ for prj in projects:
     if len(file_matrix) != 0:
         result_matrix[prj] = file_matrix
 
-print_info()
+#print_info()
+
+plotter.init_graph(result_matrix)
 
