@@ -8,9 +8,6 @@ import networkx as nx
 def init_graph(result_matrix):
     graph = nx.Graph()
 
-    nx.random_geometric_graph(200, 0.125)
-
-
     for project, file_matrix in result_matrix.iteritems():
         print ("I PROJECT: \t" + project)
         for file, lines in file_matrix.iteritems():
