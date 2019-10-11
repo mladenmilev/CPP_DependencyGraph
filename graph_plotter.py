@@ -1,5 +1,7 @@
-import plotly
-from plotly.graph_objs import *
+#import plotly
+#from plotly.graph_objs import *
+
+import plotly.graph_objects as go
 import re
 import random as r
 import networkx as nx
@@ -28,21 +30,32 @@ def init_graph(result_matrix):
     print ("Nodes: " + str(graph.number_of_nodes()))
 
 
-    edge_trace = Scatter(x=[], y=[], line=Line(width=0.5,color='#888'), hoverinfo='text', mode='lines')
+    edge_trace = go.Scatter(x=[], y=[], line=go.scatter.Line(width=0.5,color='#888'), hoverinfo='text', mode='lines')
 
     for edge in graph.edges():
         x0, y0 = graph.node[edge[0]]['pos']
         x1, y1 = graph.node[edge[1]]['pos']
-        edge_trace['x'] += [x0, x1, None]
-        edge_trace['y'] += [y0, y1, None]
+        edge_trace['x'] += tuple([x0, x1, None])
+        edge_trace['y'] += tuple([y0, y1, None])
 
+    node_x = []
+    node_y = []
 
-    node_trace = Scatter(x=[], y=[], text=[], mode='markers', hoverinfo='text', marker=Marker(
+    for node in graph.nodes():
+        x, y = graph.node[node]['pos']
+        node_x.append(x)
+        node_y.append(y)
+        #node_trace['x'] += tuple([x])
+        #node_trace['y'] += tuple([y])
+        #node_trace.text = str(node)
+        #node_trace.marker.color = len(str(node))
+
+    node_trace = go.Scatter(x=node_x, y=node_y, text=[], mode='markers', hoverinfo='text', marker=go.scatter.Marker(
         showscale=True,
         # colorscale options
         # 'Greys' | 'Greens' | 'Bluered' | 'Hot' | 'Picnic' | 'Portland' |
         # Jet' | 'RdBu' | 'Blackbody' | 'Earth' | 'Electric' | 'YIOrRd' | 'YIGnBu'
-        colorscale='YIGnBu',
+        colorscale='YlGnBu',
         reversescale=True,
         color=[],
         size=20,
@@ -54,24 +67,27 @@ def init_graph(result_matrix):
         ),
         line=dict(width=2)))
 
-    for node in graph.nodes():
-        x, y = graph.node[node]['pos']
-        node_trace['x'].append(x)
-        node_trace['y'].append(y)
-        node_trace['text'].append(str(node))
-        node_trace['marker']['color'].append(len(str(node)))
+    node_adjacencies = []
+    node_text = []
+    for node, adjacencies in enumerate(go.adjacency()):
+        node_adjacencies.append(len(adjacencies[1]))
+        node_text.append('# of connections: ' + str(len(adjacencies[1])))
+
+    node_trace.marker.color = node_adjacencies
+    node_trace.text = node_text
 
 
 
-    fig = Figure(data=Data([edge_trace, node_trace]),
-             layout=Layout(
+    fig = go.Figure(data=[edge_trace, node_trace],
+             layout=go.Layout(
                 title='<br><b>7196 OPT Inter-project dependencies graph</b>',
                 titlefont=dict(size=16),
                 showlegend=False,
                 hovermode='closest',
                 margin=dict(b=20,l=5,r=5,t=40),
-                xaxis=XAxis(showgrid=False, zeroline=False, showticklabels=False),
-                yaxis=YAxis(showgrid=False, zeroline=False, showticklabels=False)))
+                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
+    )
 
 
-    plotly.offline.plot(fig, filename='networkx.html')
+    go.offline.plot(fig, filename='networkx.html')
